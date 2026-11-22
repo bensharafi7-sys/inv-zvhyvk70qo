@@ -1093,7 +1093,7 @@ body.is-open #invite-nav:not([hidden]) { display: flex; }
 .rsvp-more summary::-webkit-details-marker { display: none; }
 .rsvp-more[open] summary { margin-bottom: 0.5rem; }
 .rsvp-more .rsvp-field + .rsvp-field { margin-top: 0.6rem; }
-.rsvp-hp { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; left: -9999px; }
+.rsvp-hp { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; right: 0; top: 0; opacity: 0; pointer-events: none; }
 .rsvp-error { margin: 0; color: #9a3d34; font-size: 1rem; text-align: center; font-weight: 500; }
 .rsvp-send {
   min-height: 58px;
