@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#e8d5cc">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="format-detection" content="telephone=no">
+  <title>מאור יוסף מיארה · עלייה לתורה</title>
+  <link rel="stylesheet" href="assets/fonts/fonts.css?v=20261122f">
+  <link rel="stylesheet" href="assets/css/invitation.css?v=20261122f">
+</head>
+<body>
+  <audio id="bg-music" loop preload="auto" src="assets/music/gymnopedie-no1.mp3?v=20261122f"></audio>
+
+  <button type="button" id="mute-btn" class="mute-btn" aria-label="השתקת מוזיקה" aria-pressed="false">
+    <svg class="icon-on" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M4 9v6h4l5 4V5L8 9H4zm12.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4zm-2.5-8.5v2.06A7.5 7.5 0 0 1 21 12a7.5 7.5 0 0 1-6.99 7.44V21.5A9.5 9.5 0 0 0 23 12 9.5 9.5 0 0 0 14 3.5z"/>
+    </svg>
+    <svg class="icon-off" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M4 9v6h4l5 4V5L8 9H4zm12.73-1.27-1.41 1.41A4.48 4.48 0 0 1 16.5 12a4.5 4.5 0 0 1-1.18 2.86l1.41 1.41A6.48 6.48 0 0 0 18.5 12c0-1.54-.54-2.95-1.77-4.27zM3.27 3 2 4.27 7.73 10H4v6h4l5 4v-6.73l4.25 4.25A6.47 6.47 0 0 1 16.5 19.5v2.06A8.48 8.48 0 0 0 20.02 18l1.71 1.71L23 18.44 3.27 3z"/>
+    </svg>
+  </button>
+
+  <div id="envelope-stage" role="dialog" aria-label="מעטפת ההזמנה">
+    <div class="envelope-scene">
+      <div class="envelope-layer vellum-sheet" aria-hidden="true"></div>
+      <div class="envelope-layer envelope-full" aria-hidden="true"></div>
+      <div class="flaps" aria-hidden="true">
+        <div class="pocket"></div>
+        <div class="flap flap-top"></div>
+      </div>
+      <button type="button" id="seal-hit" class="seal-hit" aria-label="לחצו לפתיחה">
+        <span class="seal-glow" aria-hidden="true"></span>
+        <span class="seal-shimmer" aria-hidden="true"></span>
+        <svg class="crack" viewBox="0 0 100 100" aria-hidden="true">
+          <path d="M48 8 L52 22 L46 34 L55 48 L44 60 L54 74 L47 92"/>
+          <path d="M52 22 L63 28"/>
+          <path d="M46 34 L36 40"/>
+          <path d="M55 48 L66 52"/>
+          <path d="M44 60 L34 66"/>
+        </svg>
+      </button>
+    </div>
+    <p class="hint">לחצו לפתיחה</p>
+  </div>
+
+  <main id="invitation" aria-hidden="true">
+    <section class="sec sec-card" id="card">
+      <div class="card-text">
+        <p class="kicker fade-line">מתרגשים להזמינכם</p>
+        <p class="kicker sub fade-line">לעלייה לתורה של</p>
+        <h1 class="honoree fade-line">מאור יוסף מיארה</h1>
+        <span class="card-rule fade-line" aria-hidden="true"></span>
+      </div>
+    </section>
+
+    <section class="sec sec-scratch reveal" id="scratch">
+      <div class="scratch-inner">
+        <div class="scratch-card" id="scratch-card">
+          <div class="scratch-reveal" aria-live="polite">
+            <p class="scratch-kicker">המועד</p>
+            <p class="hebrew-date">ט׳ באדר ב׳ תשפ״ז</p>
+            <p class="greg-date">יום חמישי, 18.3.2027</p>
+          </div>
+          <canvas id="scratch-canvas" class="scratch-canvas" aria-label="גרדו כאן לחשיפת התאריך"></canvas>
+          <div class="scratch-hint" id="scratch-hint">
+            <span class="scratch-finger" aria-hidden="true">👆</span>
+            <span class="scratch-hint-text">גרדו כאן ✨</span>
+          </div>
+          <div class="scratch-sparkles" id="scratch-sparkles" aria-hidden="true"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec sec-countdown reveal" id="countdown-sec">
+      <div class="countdown-inner">
+        <h2>ספירה לאחור</h2>
+        <div class="count-box" id="countdown">
+          <div class="count-cell">
+            <div class="count-num" data-unit="days">0</div>
+            <span class="count-label">ימים</span>
+          </div>
+          <div class="count-cell">
+            <div class="count-num" data-unit="hours">00</div>
+            <span class="count-label">שעות</span>
+          </div>
+          <div class="count-cell">
+            <div class="count-num" data-unit="minutes">00</div>
+            <span class="count-label">דקות</span>
+          </div>
+          <div class="count-cell">
+            <div class="count-num" data-unit="seconds">00</div>
+            <span class="count-label">שניות</span>
+          </div>
+        </div>
+        <p class="soon">מחכים לראותכם</p>
+      </div>
+    </section>
+
+    <section class="sec sec-portrait reveal" id="portrait">
+      <img src="assets/img/maor-portrait.webp?v=20261122f" width="941" height="1672" alt="מאור יוסף מיארה">
+    </section>
+
+    <section class="sec sec-family reveal" id="family">
+      <div class="family-frame">
+        <h2>המשפחה</h2>
+        <p>
+          <span class="fam-label">ההורים</span>
+          <span class="fam-names">מיטל ודודי מיארה</span>
+        </p>
+        <p>
+          <span class="fam-label">האחים</span>
+          <span class="fam-names">ליאל ואוריה</span>
+        </p>
+        <p class="fam-dog">
+          <span class="fam-label">והכלב</span>
+          <span class="fam-names">
+            באף
+            <svg class="paw" viewBox="0 0 24 24" aria-hidden="true">
+              <ellipse cx="6.2" cy="8.2" rx="2.1" ry="2.6" transform="rotate(-18 6.2 8.2)"/>
+              <ellipse cx="11" cy="5.6" rx="2.15" ry="2.7"/>
+              <ellipse cx="16" cy="5.6" rx="2.15" ry="2.7"/>
+              <ellipse cx="20.6" cy="8.2" rx="2.1" ry="2.6" transform="rotate(18 20.6 8.2)"/>
+              <path d="M12 11.2c-3.6 0-6.2 2.4-6.2 5.1 0 2.2 1.9 3.5 4.1 3.5 1.1 0 1.9-.4 2.1-1 .2.6 1 1 2.1 1 2.2 0 4.1-1.3 4.1-3.5 0-2.7-2.6-5.1-6.2-5.1z"/>
+            </svg>
+          </span>
+        </p>
+      </div>
+    </section>
+
+    <section class="sec sec-venue reveal" id="venue">
+      <h2>המקום</h2>
+      <p id="venue-name"></p>
+      <p id="venue-address"></p>
+      <a class="waze-btn" id="waze-btn" href="#" target="_blank" rel="noopener">פתיחה ב-Waze</a>
+    </section>
+
+    <section class="sec sec-schedule reveal" id="schedule">
+      <h2>סדר היום</h2>
+      <ul class="sched-list" id="schedule-list"></ul>
+    </section>
+
+    <section class="sec sec-closing reveal" id="closing">
+      <div class="closing-inner">
+        <p class="closing-wish">נשמח לראותכם</p>
+        <div class="closing-seal">
+          <img src="assets/img/seal-small-cut.webp?v=20261122f" width="600" height="621" alt="">
+          <span class="monogram-sm" aria-hidden="true">מ</span>
+        </div>
+        <div class="closing-foot">
+          <a class="wa-contact" href="https://wa.me/972506466300?text=%D7%94%D7%99%D7%99%2C%20%D7%A8%D7%90%D7%99%D7%AA%20%D7%90%D7%AA%20%D7%94%D7%94%D7%96%D7%9E%D7%A0%D7%94%20%D7%94%D7%93%D7%99%D7%92%D7%99%D7%98%D7%9C%D7%99%D7%AA%20%D7%95%D7%90%D7%A9%D7%9E%D7%97%20%D7%9C%D7%A4%D7%A8%D7%98%D7%99%D7%9D" target="_blank" rel="noopener">
+            <svg class="wa-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12.04 2.00C6.58 2.00 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.30-1.39a9.86 9.86 0 0 0 4.74 1.20h.01c5.46 0 9.91-4.45 9.91-9.91C21.96 6.45 17.50 2.00 12.04 2.00zm5.79 14.08c-.24.68-1.40 1.25-1.94 1.33-.50.08-1.13.11-1.82-.11-.42-.14-.96-.31-1.65-.61-2.90-1.25-4.79-4.17-4.93-4.37-.14-.19-1.17-1.56-1.17-2.98 0-1.42.74-2.12 1.01-2.41.26-.29.58-.36.77-.36h.55c.17 0 .41-.07.64.49.24.58.82 2.00.89 2.15.07.14.12.32.02.51-.10.19-.14.32-.29.49-.14.17-.30.38-.43.51-.14.14-.29.29-.12.56.17.28.74 1.22 1.59 1.98 1.09.97 2.02 1.28 2.30 1.42.28.14.44.12.61-.07.17-.19.71-.83.90-1.11.19-.28.38-.24.64-.14.26.10 1.66.78 1.95.93.28.14.47.21.54.33.07.12.07.68-.17 1.36z"/>
+            </svg>
+            <span>לבירורים והזמנות ב-<span lang="en" dir="ltr">WhatsApp</span></span>
+          </a>
+          <p class="site-credit" dir="ltr">© 2026 <span lang="en">Benjo Ai Studio</span> · <span lang="he" dir="rtl">כל הזכויות שמורות</span></p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <nav id="invite-nav" hidden>
+    <div class="progress-dots" id="progress-dots" aria-hidden="true"></div>
+    <div class="nav-chevron" id="nav-chevron" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <button type="button" id="nav-next" class="nav-next">להמשך ↓</button>
+  </nav>
+
+  <script src="assets/js/invitation.js?v=20261122f"></script>
+</body>
+</html>

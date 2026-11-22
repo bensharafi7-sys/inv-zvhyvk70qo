@@ -1,0 +1,5 @@
+Self-hosted fonts (SIL Open Font License 1.1):
+- Frank Ruhl Libre, by Yanek Iontef / Google Fonts
+- Bellefair, by Eliezer Levy / Lirotype / Google Fonts
+- Suez One, by Revival Type / Google Fonts
+Downloaded from fonts.gstatic.com for self-hosting. SIL OFL 1.1.
