@@ -9,11 +9,11 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="format-detection" content="telephone=no">
   <title>מאור יוסף מיארה · עלייה לתורה</title>
-  <link rel="stylesheet" href="assets/fonts/fonts.css?v=20261122g">
-  <link rel="stylesheet" href="assets/css/invitation.css?v=20261122g">
+  <link rel="stylesheet" href="assets/fonts/fonts.css?v=20261122r">
+  <link rel="stylesheet" href="assets/css/invitation.css?v=20261122r">
 </head>
 <body>
-  <audio id="bg-music" loop preload="auto" src="assets/music/gymnopedie-no1.mp3?v=20261122g"></audio>
+  <audio id="bg-music" loop preload="auto" src="assets/music/gymnopedie-no1.mp3?v=20261122r"></audio>
 
   <button type="button" id="mute-btn" class="mute-btn" aria-label="השתקת מוזיקה" aria-pressed="false">
     <svg class="icon-on" viewBox="0 0 24 24" aria-hidden="true">
@@ -101,7 +101,7 @@
     </section>
 
     <section class="sec sec-portrait reveal" id="portrait">
-      <img src="assets/img/maor-portrait.webp?v=20261122g" width="941" height="1672" alt="מאור יוסף מיארה">
+      <img src="assets/img/maor-portrait.webp?v=20261122r" width="941" height="1672" alt="מאור יוסף מיארה">
     </section>
 
     <section class="sec sec-family reveal" id="family">
@@ -143,11 +143,69 @@
       <ul class="sched-list" id="schedule-list"></ul>
     </section>
 
+    <section class="sec sec-rsvp reveal" id="rsvp">
+      <div class="rsvp-frame">
+        <h2>אישור הגעה</h2>
+        <p class="rsvp-sub">נשמח לדעת אם תגיעו לשמוח איתנו</p>
+
+        <form id="rsvp-form" class="rsvp-form" novalidate autocomplete="on">
+          <div class="rsvp-choice" role="radiogroup" aria-label="האם תגיעו?">
+            <button type="button" class="choice-btn" data-attending="yes" role="radio" aria-checked="false">
+              <span class="choice-ic" aria-hidden="true">✓</span> מגיע/ה
+            </button>
+            <button type="button" class="choice-btn" data-attending="no" role="radio" aria-checked="false">
+              <span class="choice-ic" aria-hidden="true">✕</span> לא מגיע/ה
+            </button>
+          </div>
+
+          <label class="rsvp-field">
+            <span class="rsvp-label">שם מלא</span>
+            <input type="text" id="rsvp-name" name="name" maxlength="60" autocomplete="name" enterkeyhint="next" placeholder="לדוגמה: משפחת כהן" required>
+          </label>
+
+          <div class="rsvp-count" id="rsvp-count-wrap" hidden>
+            <span class="rsvp-label" id="rsvp-count-lbl">כמה תגיעו?</span>
+            <div class="stepper" role="group" aria-labelledby="rsvp-count-lbl">
+              <button type="button" class="step-btn" id="rsvp-plus" aria-label="הוספת אדם">+</button>
+              <output id="rsvp-count" class="step-val" aria-live="polite">1</output>
+              <button type="button" class="step-btn" id="rsvp-minus" aria-label="הפחתת אדם">−</button>
+            </div>
+          </div>
+
+          <details class="rsvp-more" id="rsvp-more">
+            <summary>טלפון והערה (לא חובה)</summary>
+            <label class="rsvp-field">
+              <span class="rsvp-label">טלפון</span>
+              <input type="tel" id="rsvp-phone" name="phone" maxlength="20" inputmode="tel" autocomplete="tel" dir="ltr">
+            </label>
+            <label class="rsvp-field">
+              <span class="rsvp-label">הערה</span>
+              <textarea id="rsvp-note" name="note" maxlength="300" rows="2"></textarea>
+            </label>
+          </details>
+
+          <div class="rsvp-hp" aria-hidden="true">
+            <label>אתר<input type="text" id="rsvp-website" name="website" tabindex="-1" autocomplete="off"></label>
+          </div>
+
+          <p class="rsvp-error" id="rsvp-error" role="alert" hidden></p>
+          <button type="submit" class="rsvp-send" id="rsvp-send">שליחת אישור</button>
+        </form>
+
+        <div class="rsvp-done" id="rsvp-done" hidden aria-live="polite">
+          <div class="rsvp-done-ic" aria-hidden="true">♡</div>
+          <p class="rsvp-done-title" id="rsvp-done-title">תודה! נתראה בשמחות</p>
+          <p class="rsvp-done-sum" id="rsvp-done-sum"></p>
+          <button type="button" class="rsvp-edit" id="rsvp-edit">לשינוי התשובה</button>
+        </div>
+      </div>
+    </section>
+
     <section class="sec sec-closing reveal" id="closing">
       <div class="closing-inner">
         <p class="closing-wish">נשמח לראותכם</p>
         <div class="closing-seal">
-          <img src="assets/img/seal-open.webp?v=20261122g" width="600" height="621" alt="">
+          <img src="assets/img/seal-open.webp?v=20261122r" width="600" height="621" alt="">
         </div>
         <div class="closing-foot">
           <a class="wa-contact" href="https://wa.me/972506466300?text=%D7%94%D7%99%D7%99%2C%20%D7%A8%D7%90%D7%99%D7%AA%D7%99%20%D7%90%D7%AA%20%D7%94%D7%94%D7%96%D7%9E%D7%A0%D7%94%20%D7%94%D7%93%D7%99%D7%92%D7%99%D7%98%D7%9C%D7%99%D7%AA%20%D7%95%D7%90%D7%A9%D7%9E%D7%97%20%D7%9C%D7%A4%D7%A8%D7%98%D7%99%D7%9D" target="_blank" rel="noopener">
@@ -170,6 +228,6 @@
     <button type="button" id="nav-next" class="nav-next">להמשך ↓</button>
   </nav>
 
-  <script src="assets/js/invitation.js?v=20261122g"></script>
+  <script src="assets/js/invitation.js?v=20261122r"></script>
 </body>
 </html>

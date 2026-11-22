@@ -15,7 +15,17 @@
     timeZone: "Asia/Jerusalem",
     schedule: [
       // { time: "17:00", title: "קבלת פנים", note: "" },
-    ]
+    ],
+    // Guest RSVP. Answers go to a private Firestore DB (create/update only; nobody
+    // can read them from this site). Only the family's Google account sees them.
+    rsvp: {
+      enabled: true,
+      projectId: "hazmana-bahazmana",
+      apiKey: "AIzaSyD5i5yR8wp7Gpv3_CszOsGM79vAhUYq4hY",
+      eventId: "maor-miara-2027",
+      maxCount: 10,
+      defaultCount: 1
+    }
   };
 
   const envelope = document.getElementById("envelope-stage");
@@ -37,6 +47,7 @@
   setupReveal();
   setupNav();
   const scratchApi = setupScratch();
+  setupRsvp();
 
   const alreadyOpen = /[?&]open=1(?:&|$)/.test(location.search);
   if (alreadyOpen) {
@@ -274,7 +285,7 @@
         const dy = e.clientY - ptr.y;
         ptr = null;
         if (Math.hypot(dx, dy) > 16) return;
-        if (e.target.closest("a, button, canvas, .scratch-card, .wa-contact, .waze-btn")) return;
+        if (e.target.closest("a, button, canvas, input, textarea, select, label, summary, form, .rsvp-frame, .scratch-card, .wa-contact, .waze-btn")) return;
         if (e.clientY < window.innerHeight * 0.62) return;
         if (!body.classList.contains("is-open")) return;
         advanceFromNav();
@@ -540,6 +551,252 @@
       complete: finish,
       isComplete: function () { return complete; }
     };
+  }
+
+
+  function setupRsvp() {
+    const sec = document.getElementById("rsvp");
+    const cfg = CONFIG.rsvp;
+    if (!sec) return;
+    if (!cfg || !cfg.enabled) { sec.remove(); return; }
+
+    const form = document.getElementById("rsvp-form");
+    const done = document.getElementById("rsvp-done");
+    const choiceWrap = sec.querySelector(".rsvp-choice");
+    const choices = sec.querySelectorAll(".choice-btn");
+    const nameEl = document.getElementById("rsvp-name");
+    const countWrap = document.getElementById("rsvp-count-wrap");
+    const countEl = document.getElementById("rsvp-count");
+    const plus = document.getElementById("rsvp-plus");
+    const minus = document.getElementById("rsvp-minus");
+    const phoneEl = document.getElementById("rsvp-phone");
+    const noteEl = document.getElementById("rsvp-note");
+    const more = document.getElementById("rsvp-more");
+    const hp = document.getElementById("rsvp-website");
+    const errEl = document.getElementById("rsvp-error");
+    const sendBtn = document.getElementById("rsvp-send");
+    const doneTitle = document.getElementById("rsvp-done-title");
+    const doneSum = document.getElementById("rsvp-done-sum");
+    const editBtn = document.getElementById("rsvp-edit");
+
+    const KEY = "rsvp:" + cfg.eventId;
+    const LOG = "rsvp-log:" + cfg.eventId;
+    const MAX = cfg.maxCount || 10;
+    let attending = null;
+    let count = cfg.defaultCount || 1;
+    let sending = false;
+
+    function load() { try { return JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) { return null; } }
+    function save(v) { try { localStorage.setItem(KEY, JSON.stringify(v)); } catch (e) {} }
+    function newId() {
+      const a = new Uint8Array(16);
+      (window.crypto || window.msCrypto).getRandomValues(a);
+      return Array.prototype.map.call(a, function (b) { return ("0" + b.toString(16)).slice(-2); }).join("");
+    }
+    function clean(v, max) {
+      return String(v || "").replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, "").replace(/\s+/g, " ").trim().slice(0, max);
+    }
+    function cleanNote(v) {
+      return String(v || "").replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, "").replace(/\n{3,}/g, "\n\n").trim().slice(0, 300);
+    }
+
+    function setAttending(v) {
+      attending = v;
+      choices.forEach(function (b) {
+        b.setAttribute("aria-checked", (b.dataset.attending === "yes") === v ? "true" : "false");
+      });
+      choiceWrap.classList.remove("is-invalid");
+      countWrap.hidden = v !== true;
+      hideError();
+    }
+    function setCount(n) {
+      count = Math.max(1, Math.min(MAX, n));
+      countEl.textContent = String(count);
+      minus.disabled = count <= 1;
+      plus.disabled = count >= MAX;
+    }
+    function showError(msg) { errEl.textContent = msg; errEl.hidden = false; }
+    function hideError() { errEl.hidden = true; }
+
+    choices.forEach(function (b) {
+      b.addEventListener("click", function () { setAttending(b.dataset.attending === "yes"); });
+    });
+    plus.addEventListener("click", function () { setCount(count + 1); });
+    minus.addEventListener("click", function () { setCount(count - 1); });
+    nameEl.addEventListener("input", function () { nameEl.classList.remove("is-invalid"); hideError(); });
+
+    // Keep the fixed step-nav out of the way while the keyboard is up.
+    sec.addEventListener("focusin", function (e) {
+      if (e.target.matches("input, textarea")) body.classList.add("is-typing");
+    });
+    sec.addEventListener("focusout", function () {
+      window.setTimeout(function () {
+        if (!sec.contains(document.activeElement) || !document.activeElement.matches("input, textarea")) body.classList.remove("is-typing");
+      }, 60);
+    });
+
+    function rateLimited() {
+      let log = [];
+      try { log = JSON.parse(localStorage.getItem(LOG) || "[]"); } catch (e) {}
+      const now = Date.now();
+      log = log.filter(function (t) { return now - t < 10 * 60 * 1000; });
+      if (log.length && now - log[log.length - 1] < 4000) return true;
+      if (log.length >= 6) return true;
+      log.push(now);
+      try { localStorage.setItem(LOG, JSON.stringify(log)); } catch (e) {}
+      return false;
+    }
+
+    function docName(id) {
+      return "projects/" + cfg.projectId + "/databases/(default)/documents/events/" + cfg.eventId + "/rsvps/" + id;
+    }
+    function commit(write) {
+      const url = "https://firestore.googleapis.com/v1/projects/" + cfg.projectId +
+        "/databases/(default)/documents:commit?key=" + encodeURIComponent(cfg.apiKey);
+      const ctrl = window.AbortController ? new AbortController() : null;
+      const timer = ctrl ? window.setTimeout(function () { ctrl.abort(); }, 15000) : 0;
+      return fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ writes: [write] }),
+        signal: ctrl ? ctrl.signal : undefined,
+        credentials: "omit",
+        referrerPolicy: "no-referrer"
+      }).then(function (res) {
+        window.clearTimeout(timer);
+        if (res.ok) return true;
+        return res.json().catch(function () { return {}; }).then(function (j) {
+          const err = new Error((j.error && j.error.status) || ("HTTP " + res.status));
+          err.status = (j.error && j.error.status) || "";
+          throw err;
+        });
+      });
+    }
+    function fieldsOf(d) {
+      return {
+        name: { stringValue: d.name },
+        attending: { booleanValue: d.attending },
+        count: { integerValue: String(d.count) },
+        phone: { stringValue: d.phone },
+        note: { stringValue: d.note }
+      };
+    }
+    function createDoc(id, d) {
+      const f = fieldsOf(d);
+      f.edits = { integerValue: "0" };
+      return commit({
+        update: { name: docName(id), fields: f },
+        currentDocument: { exists: false },
+        updateTransforms: [
+          { fieldPath: "createdAt", setToServerValue: "REQUEST_TIME" },
+          { fieldPath: "updatedAt", setToServerValue: "REQUEST_TIME" }
+        ]
+      });
+    }
+    function updateDoc(id, d) {
+      return commit({
+        update: { name: docName(id), fields: fieldsOf(d) },
+        updateMask: { fieldPaths: ["name", "attending", "count", "phone", "note"] },
+        currentDocument: { exists: true },
+        updateTransforms: [
+          { fieldPath: "updatedAt", setToServerValue: "REQUEST_TIME" },
+          { fieldPath: "edits", increment: { integerValue: "1" } }
+        ]
+      });
+    }
+
+    function showDone(d, animate) {
+      doneTitle.textContent = d.attending ? "תודה! נתראה בשמחות" : "תודה שעדכנתם";
+      doneSum.textContent = d.attending
+        ? (d.count === 1 ? "אישרתם הגעה של אדם אחד" : "אישרתם הגעה של " + d.count + " אנשים")
+        : "רשמנו שלא תוכלו להגיע. נתגעגע!";
+      form.hidden = true;
+      done.hidden = false;
+      const ic = done.querySelector(".rsvp-done-ic");
+      if (ic && animate) { ic.style.animation = "none"; void ic.offsetWidth; ic.style.animation = ""; }
+    }
+    function showForm(prev) {
+      done.hidden = true;
+      form.hidden = false;
+      sendBtn.textContent = prev ? "עדכון התשובה" : "שליחת אישור";
+      if (prev) {
+        nameEl.value = prev.name || "";
+        phoneEl.value = prev.phone || "";
+        noteEl.value = prev.note || "";
+        if (prev.phone || prev.note) more.open = true;
+        setAttending(prev.attending);
+        setCount(prev.attending ? prev.count : (cfg.defaultCount || 1));
+      }
+    }
+
+    editBtn.addEventListener("click", function () { showForm(load()); });
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      if (sending) return;
+      hideError();
+      const name = clean(nameEl.value, 60);
+      if (attending === null) {
+        choiceWrap.classList.add("is-invalid");
+        showError("בחרו בבקשה: מגיע/ה או לא מגיע/ה");
+        return;
+      }
+      if (name.length < 2) {
+        nameEl.classList.add("is-invalid");
+        showError("כתבו בבקשה את השם");
+        nameEl.focus();
+        return;
+      }
+      const data = {
+        name: name,
+        attending: attending,
+        count: attending ? count : 0,
+        phone: clean(phoneEl.value, 20).replace(/[^\d+\-() ]/g, ""),
+        note: cleanNote(noteEl.value)
+      };
+      const prev = load();
+      if (hp && hp.value) {           // honeypot: bots get a fake success
+        save(Object.assign({ id: (prev && prev.id) || newId(), at: Date.now() }, data));
+        showDone(data, true);
+        return;
+      }
+      if (rateLimited()) {
+        showError("רגע אחד… נסו שוב בעוד כמה שניות");
+        return;
+      }
+      sending = true;
+      sendBtn.disabled = true;
+      const label = sendBtn.textContent;
+      sendBtn.textContent = "שולחים…";
+      if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+
+      let id = prev && prev.id ? prev.id : newId();
+      const attempt = (prev && prev.id)
+        ? updateDoc(id, data).catch(function (err) {
+            // Record was removed by the family, or never landed: create a fresh one.
+            if (err.status === "NOT_FOUND" || err.status === "FAILED_PRECONDITION") {
+              id = newId();
+              return createDoc(id, data);
+            }
+            throw err;
+          })
+        : createDoc(id, data);
+
+      attempt.then(function () {
+        save(Object.assign({ id: id, at: Date.now() }, data));
+        showDone(data, true);
+      }).catch(function () {
+        showError("לא הצלחנו לשלוח. בדקו את החיבור לאינטרנט ונסו שוב.");
+      }).then(function () {
+        sending = false;
+        sendBtn.disabled = false;
+        if (!form.hidden) sendBtn.textContent = label;
+      });
+    });
+
+    setCount(count);
+    const saved = load();
+    if (saved && saved.id) showDone(saved, false);
   }
 
   function fillVenue() {
