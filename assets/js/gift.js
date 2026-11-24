@@ -58,8 +58,9 @@
 
   function sparkle(el) {
     if (!window.InviteFX || !el) return;
+    // Burst from just above the element so no confetti settles on the label text.
     const r = el.getBoundingClientRect();
-    window.InviteFX.burst(r.left + r.width / 2, r.top + r.height / 2, { count: 34, power: 0.45 });
+    window.InviteFX.burst(r.left + r.width / 2, r.top - 6, { count: 30, power: 0.42, spread: Math.PI * 0.7, lift: 3 });
   }
 
   function onCopyTap() {
