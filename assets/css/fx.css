@@ -1,0 +1,207 @@
+/* Maor invitation — effects layer. Decorative only; never intercepts taps. */
+.fx-canvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none !important;
+  touch-action: none;
+}
+.fx-burst { z-index: 75; }
+.fx-bokeh {
+  z-index: 20;
+  opacity: 0;
+  transition: opacity 2.4s ease;
+}
+.fx-bokeh.is-on { opacity: 1; }
+body.is-typing .fx-bokeh { opacity: 0.25; }
+
+/* Shimmer / light sweep on the name and key headings */
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .honoree,
+  .closing-wish {
+    background-image: linear-gradient(105deg,
+      var(--bronze-dark) 0%, var(--bronze-dark) 40%,
+      #b07a4a 46%, #d6a874 50%, #b07a4a 54%,
+      var(--bronze-dark) 60%, var(--bronze-dark) 100%);
+    background-size: 260% 100%;
+    background-position: 120% 0;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: var(--bronze-dark);
+  }
+  body.is-open .honoree { animation: fx-sweep 5.5s ease-in-out 0.6s infinite; }
+  body.is-opening .honoree { animation: fade-up 0.9s ease 2.35s forwards, fx-sweep 5.5s ease-in-out 3.4s infinite; }
+  .sec-closing.is-visible .closing-wish { animation: fx-sweep 6s ease-in-out 1s infinite; }
+
+  .sec-countdown h2 {
+    background-image: linear-gradient(105deg,
+      #f7f1e8 0%, #f7f1e8 42%, #fff6dd 47%, #f3d49a 50%, #fff6dd 53%, #f7f1e8 58%, #f7f1e8 100%);
+    background-size: 260% 100%;
+    background-position: 120% 0;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: none;
+    filter: drop-shadow(0 1px 0 rgba(80, 50, 60, 0.22));
+  }
+  .sec-countdown.is-visible h2 { animation: fx-sweep 6s ease-in-out 0.8s infinite; }
+}
+@keyframes fx-sweep {
+  0%   { background-position: 120% 0; }
+  45%  { background-position: -20% 0; }
+  100% { background-position: -20% 0; }
+}
+
+/* Decorative rule under the name gets a glint */
+.card-rule { position: relative; overflow: visible; }
+body.is-open .card-rule::after {
+  content: "";
+  position: absolute;
+  top: -2px; left: 50%;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: #fff4dc;
+  box-shadow: 0 0 8px 3px rgba(232, 201, 160, 0.9);
+  transform: translateX(-50%);
+  animation: fx-glint 5.5s ease-in-out 1.2s infinite;
+  opacity: 0;
+}
+@keyframes fx-glint {
+  0%, 30%  { opacity: 0; left: 0; }
+  40%      { opacity: 1; }
+  60%      { opacity: 1; }
+  70%,100% { opacity: 0; left: 100%; }
+}
+
+/* Card text subtle parallax (individual translate keeps existing transforms) */
+.card-text { translate: 0 calc(var(--fx-par, 0px) * -1); will-change: translate; }
+.sec-portrait img { transform: scale(1.07); will-change: transform; transition: transform 0.08s linear; }
+
+/* Staggered scroll-reveal for inner elements */
+.fx-ready .sec-countdown .count-cell,
+.fx-ready .sec-countdown .soon,
+.fx-ready .sec-family .family-frame > *,
+.fx-ready .sec-closing .closing-inner > * {
+  opacity: 0;
+  transform: translateY(16px) scale(0.98);
+  filter: blur(3px);
+  transition: opacity 0.8s ease, transform 0.9s cubic-bezier(0.22, 0.8, 0.28, 1), filter 0.8s ease;
+}
+.fx-ready .is-visible .count-cell,
+.fx-ready .is-visible .soon,
+.fx-ready .is-visible .family-frame > *,
+.fx-ready .is-visible .closing-inner > * {
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+.sec-countdown .count-cell:nth-child(1) { transition-delay: 0.15s; }
+.sec-countdown .count-cell:nth-child(2) { transition-delay: 0.27s; }
+.sec-countdown .count-cell:nth-child(3) { transition-delay: 0.39s; }
+.sec-countdown .count-cell:nth-child(4) { transition-delay: 0.51s; }
+.sec-countdown .soon { transition-delay: 0.75s; }
+.family-frame > *:nth-child(1) { transition-delay: 0.15s; }
+.family-frame > *:nth-child(2) { transition-delay: 0.32s; }
+.family-frame > *:nth-child(3) { transition-delay: 0.49s; }
+.family-frame > *:nth-child(4) { transition-delay: 0.66s; }
+.closing-inner > *:nth-child(1) { transition-delay: 0.15s; }
+.closing-inner > *:nth-child(2) { transition-delay: 0.4s; }
+.closing-inner > *:nth-child(3) { transition-delay: 0.7s; }
+
+/* Countdown cells: light sweep + seconds tick */
+.count-cell { position: relative; overflow: hidden; }
+.count-cell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 35%, rgba(255, 255, 255, 0.65) 50%, transparent 65%);
+  transform: translateX(-130%);
+  pointer-events: none;
+}
+.sec-countdown.is-visible .count-cell::after { animation: fx-cell-sweep 6s ease-in-out 1.4s infinite; }
+.sec-countdown.is-visible .count-cell:nth-child(2)::after { animation-delay: 1.55s; }
+.sec-countdown.is-visible .count-cell:nth-child(3)::after { animation-delay: 1.7s; }
+.sec-countdown.is-visible .count-cell:nth-child(4)::after { animation-delay: 1.85s; }
+@keyframes fx-cell-sweep {
+  0%   { transform: translateX(130%); }
+  22%  { transform: translateX(-130%); }
+  100% { transform: translateX(-130%); }
+}
+.count-num.fx-tick { animation: fx-tick 0.45s cubic-bezier(0.2, 1.3, 0.4, 1); }
+@keyframes fx-tick {
+  from { transform: translateY(-4px) scale(1.08); opacity: 0.55; }
+  to   { transform: none; opacity: 1; }
+}
+
+/* Closing seal: soft golden halo */
+.closing-seal::before {
+  content: "";
+  position: absolute;
+  inset: -18%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(236, 196, 140, 0.7) 0%, rgba(214, 168, 116, 0.32) 42%, transparent 70%);
+  z-index: -1;
+  pointer-events: none;
+  animation: fx-halo 3.8s ease-in-out infinite;
+}
+@keyframes fx-halo {
+  0%, 100% { opacity: 0.55; transform: scale(0.94); }
+  50%      { opacity: 1;    transform: scale(1.05); }
+}
+
+/* RSVP button: breathing glow + shine */
+.rsvp-send { position: relative; overflow: hidden; isolation: isolate; }
+.rsvp-send:not(:disabled) { animation: fx-btn-glow 2.8s ease-in-out infinite; }
+.rsvp-send::after {
+  content: "";
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 45%;
+  left: -60%;
+  background: linear-gradient(105deg, transparent, rgba(255, 246, 225, 0.55), transparent);
+  transform: skewX(-18deg);
+  pointer-events: none;
+  animation: fx-btn-shine 3.6s ease-in-out 1s infinite;
+}
+@keyframes fx-btn-glow {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(255, 244, 230, 0.3) inset, 0 8px 20px rgba(90, 50, 30, 0.28), 0 0 0 0 rgba(214, 168, 116, 0); }
+  50%      { box-shadow: 0 0 0 1px rgba(255, 244, 230, 0.3) inset, 0 8px 22px rgba(90, 50, 30, 0.3), 0 0 22px 4px rgba(214, 168, 116, 0.55); }
+}
+@keyframes fx-btn-shine {
+  0%   { left: -60%; }
+  35%  { left: 120%; }
+  100% { left: 120%; }
+}
+.choice-btn { transition: transform 0.18s ease, box-shadow 0.25s ease, background-color 0.25s ease; }
+.choice-btn[aria-checked="true"] { animation: fx-choice 0.45s cubic-bezier(0.2, 1.4, 0.4, 1); }
+@keyframes fx-choice { 0% { transform: scale(0.94); } 100% { transform: none; } }
+
+/* RSVP success glow */
+.rsvp-done.fx-celebrate .rsvp-done-ic { box-shadow: 0 0 0 0 rgba(232, 201, 160, 0.7), 0 6px 16px rgba(120, 60, 50, 0.3); animation: rsvp-pop 0.5s cubic-bezier(0.2, 1.4, 0.4, 1) both, fx-ring 1.4s ease-out 0.2s 1; }
+@keyframes fx-ring {
+  from { box-shadow: 0 0 0 0 rgba(232, 201, 160, 0.75), 0 6px 16px rgba(120, 60, 50, 0.3); }
+  to   { box-shadow: 0 0 0 28px rgba(232, 201, 160, 0), 0 6px 16px rgba(120, 60, 50, 0.3); }
+}
+
+/* Waze / WhatsApp buttons: gentle lift on press */
+.wa-contact, .waze-btn { transition: transform 0.2s ease; }
+.wa-contact:active, .waze-btn:active { transform: scale(0.97); }
+
+@media (prefers-reduced-motion: reduce) {
+  .fx-canvas { display: none !important; }
+  .honoree, .closing-wish, .sec-countdown h2,
+  .rsvp-send, .rsvp-send::after, .count-cell::after, .closing-seal::before,
+  .card-rule::after, .count-num.fx-tick, .choice-btn, .rsvp-done-ic {
+    animation: none !important;
+  }
+  body.is-opening .honoree { opacity: 1; transform: none; }
+  .card-text { translate: none; }
+  .sec-portrait img { transform: none; }
+  .fx-ready .sec-countdown .count-cell,
+  .fx-ready .sec-countdown .soon,
+  .fx-ready .sec-family .family-frame > *,
+  .fx-ready .sec-closing .closing-inner > * {
+    opacity: 1; transform: none; filter: none; transition: none;
+  }
+}
+.closing-seal { isolation: isolate; }

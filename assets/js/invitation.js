@@ -37,6 +37,7 @@
   const nav = document.getElementById("invite-nav");
   const navBtn = document.getElementById("nav-next");
   const dotsRoot = document.getElementById("progress-dots");
+  const music = createMusic();
 
   if (CONFIG.showVenue) body.classList.add("show-venue");
   if (CONFIG.showSchedule) body.classList.add("show-schedule");
@@ -58,10 +59,11 @@
 
   if (muteBtn && audio) {
     muteBtn.addEventListener("click", function () {
-      audio.muted = !audio.muted;
-      muteBtn.classList.toggle("is-muted", audio.muted);
-      muteBtn.setAttribute("aria-pressed", audio.muted ? "true" : "false");
-      muteBtn.setAttribute("aria-label", audio.muted ? "הפעלת מוזיקה" : "השתקת מוזיקה");
+      const muted = !music.muted;
+      music.setMuted(muted);
+      muteBtn.classList.toggle("is-muted", muted);
+      muteBtn.setAttribute("aria-pressed", muted ? "true" : "false");
+      muteBtn.setAttribute("aria-label", muted ? "הפעלת מוזיקה" : "השתקת מוזיקה");
     });
   }
 
@@ -98,10 +100,138 @@
 
   function startMusic() {
     if (!audio) return;
-    audio.volume = 0;
-    const play = audio.play();
-    if (play && play.catch) play.catch(function () { /* autoplay blocked; user already tapped, retry */ audio.play().catch(function () {}); });
-    fadeVolume(audio, 0.28, 1400);
+    music.start();
+  }
+
+  /* Background music: gapless Web Audio loop (decoded buffer, encoder padding
+     trimmed via loopStart/loopEnd), with the <audio loop> element as fallback. */
+  function createMusic() {
+    const VOLUME = 0.28;
+    const FADE_MS = 1400;
+    const LOOP_SECONDS = audio ? parseFloat(audio.getAttribute("data-loop-seconds") || "0") : 0;
+    const AC = window.AudioContext || window.webkitAudioContext;
+    const api = { muted: false, mode: "none", start: start, setMuted: setMuted };
+    let ctx = null, gain = null, buffer = null, source = null, loopStart = 0, loopEnd = 0;
+    let started = false, useElement = false;
+
+    if (audio && AC && window.fetch) {
+      try {
+        ctx = new AC();
+        gain = ctx.createGain();
+        gain.gain.value = 0;
+        gain.connect(ctx.destination);
+        fetch(audio.currentSrc || audio.src, { credentials: "same-origin" })
+          .then(function (r) { if (!r.ok) throw new Error("http " + r.status); return r.arrayBuffer(); })
+          .then(function (ab) {
+            return new Promise(function (res, rej) {
+              const p = ctx.decodeAudioData(ab, res, rej);
+              if (p && p.then) p.then(res, rej);
+            });
+          })
+          .then(function (buf) {
+            buffer = buf;
+            computeLoop(buf);
+            if (started && !useElement) playBuffer();
+          })
+          .catch(function () {
+            if (started && !source) fallbackToElement();
+            ctx = null;
+          });
+      } catch (e) { ctx = null; }
+    }
+
+    function computeLoop(buf) {
+      // Skip MP3 encoder priming silence at the head (the music itself starts at 0).
+      const sr = buf.sampleRate;
+      const ch = buf.getChannelData(0);
+      const limit = Math.min(ch.length, Math.round(sr * 0.2));
+      let first = 0;
+      for (let i = 0; i < limit; i++) { if (Math.abs(ch[i]) > 0.0008) { first = i; break; } }
+      loopStart = first / sr;
+      loopEnd = LOOP_SECONDS > 0 ? Math.min(buf.duration, loopStart + LOOP_SECONDS) : buf.duration;
+    }
+
+    function setIOSPlayback() {
+      try { if (navigator.audioSession) navigator.audioSession.type = "playback"; } catch (e) {}
+    }
+
+    function start() {
+      if (started) return;
+      started = true;
+      if (ctx) {
+        setIOSPlayback();
+        // Must run inside the tap gesture to unlock audio on iOS.
+        try {
+          const unlock = ctx.createBufferSource();
+          unlock.buffer = ctx.createBuffer(1, 1, 22050);
+          unlock.connect(ctx.destination);
+          unlock.start(0);
+        } catch (e) {}
+        const r = ctx.resume && ctx.resume();
+        if (r && r.catch) r.catch(function () {});
+        if (buffer) { playBuffer(); return; }
+        // Decode still running: play the element now so music begins on the tap,
+        // keep it (seamless enough) rather than switching mid-song.
+        fallbackToElement();
+        return;
+      }
+      fallbackToElement();
+    }
+
+    function playBuffer() {
+      if (source || useElement) return;
+      try {
+        source = ctx.createBufferSource();
+        source.buffer = buffer;
+        source.loop = true;
+        source.loopStart = loopStart;
+        source.loopEnd = loopEnd;
+        source.connect(gain);
+        source.start(0, loopStart);
+        const now = ctx.currentTime;
+        gain.gain.cancelScheduledValues(now);
+        gain.gain.setValueAtTime(0, now);
+        gain.gain.linearRampToValueAtTime(api.muted ? 0 : VOLUME, now + FADE_MS / 1000);
+        api.mode = "webaudio";
+        audio.removeAttribute("src");
+        audio.load();
+      } catch (e) {
+        source = null;
+        fallbackToElement();
+      }
+    }
+
+    function fallbackToElement() {
+      if (useElement || !audio) return;
+      useElement = true;
+      api.mode = "element";
+      audio.muted = api.muted;
+      audio.volume = 0;
+      const play = audio.play();
+      if (play && play.catch) play.catch(function () { audio.play().catch(function () {}); });
+      fadeVolume(audio, VOLUME, FADE_MS);
+    }
+
+    function setMuted(m) {
+      api.muted = m;
+      if (audio) audio.muted = m;
+      if (gain && ctx && api.mode === "webaudio") {
+        const now = ctx.currentTime;
+        gain.gain.cancelScheduledValues(now);
+        gain.gain.setValueAtTime(gain.gain.value, now);
+        gain.gain.linearRampToValueAtTime(m ? 0 : VOLUME, now + 0.25);
+      }
+    }
+
+    document.addEventListener("visibilitychange", function () {
+      if (!document.hidden && ctx && api.mode === "webaudio" && ctx.state !== "running") {
+        const r = ctx.resume();
+        if (r && r.catch) r.catch(function () {});
+      }
+    });
+
+    window._inviteMusic = api;
+    return api;
   }
 
   function fadeVolume(el, target, ms) {
