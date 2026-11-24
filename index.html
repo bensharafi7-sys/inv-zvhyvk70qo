@@ -10,11 +10,12 @@
   <meta name="format-detection" content="telephone=no">
   <title>מאור יוסף מיארה · עלייה לתורה</title>
   <link rel="stylesheet" href="assets/fonts/fonts.css?v=20261122s">
-  <link rel="stylesheet" href="assets/css/invitation.css?v=20261124fx">
-  <link rel="stylesheet" href="assets/css/fx.css?v=20261124fx">
+  <link rel="stylesheet" href="assets/css/invitation.css?v=20261124gift">
+  <link rel="stylesheet" href="assets/css/fx.css?v=20261124gift">
+  <link rel="stylesheet" href="assets/css/gift.css?v=20261124gift">
 </head>
 <body>
-  <audio id="bg-music" loop preload="metadata" data-loop-seconds="164.513" src="assets/music/house_B1_lev_loop.mp3?v=20261124fx"></audio>
+  <audio id="bg-music" loop preload="metadata" data-loop-seconds="164.513" src="assets/music/house_B1_lev_loop.mp3?v=20261124gift"></audio>
 
   <button type="button" id="mute-btn" class="mute-btn" aria-label="השתקת מוזיקה" aria-pressed="false">
     <svg class="icon-on" viewBox="0 0 24 24" aria-hidden="true">
@@ -202,6 +203,35 @@
       </div>
     </section>
 
+    <section class="sec sec-gift reveal" id="gift">
+      <div class="gift-frame">
+        <span class="gift-ornament" aria-hidden="true">✦</span>
+        <h2>מתנה לבר המצווה</h2>
+        <p class="gift-sub">מי שרוצה לפנק את מאור במתנה,<br>אפשר בקלות בביט או בפייבוקס 💛</p>
+
+        <div class="gift-number">
+          <span class="gift-number-label">אותו מספר בשתי האפליקציות</span>
+          <button type="button" class="gift-copy" id="gift-copy" aria-label="העתקת המספר 054-481-0664">
+            <span class="gift-num" dir="ltr">054-481-0664</span>
+            <svg class="gift-copy-ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V6.5A2.5 2.5 0 0 0 13.5 4h-7A2.5 2.5 0 0 0 4 6.5v7A2.5 2.5 0 0 0 6.5 16H8"/></svg>
+          </button>
+        </div>
+
+        <div class="gift-btns">
+          <a class="gift-btn gift-bit" id="gift-bit" href="https://apps.apple.com/il/app/id1182007739" rel="noopener" data-app="bit">
+            <span class="gift-btn-name" lang="en" dir="ltr">bit</span>
+            <span class="gift-btn-sub">העברה בביט</span>
+          </a>
+          <a class="gift-btn gift-paybox" id="gift-paybox" href="https://links.payboxapp.com/" rel="noopener" data-app="paybox">
+            <span class="gift-btn-name" lang="en" dir="ltr">PayBox</span>
+            <span class="gift-btn-sub">העברה בפייבוקס</span>
+          </a>
+        </div>
+        <p class="gift-note">בלחיצה המספר מועתק והאפליקציה נפתחת. רק להדביק, לבחור סכום ולשלוח.</p>
+      </div>
+      <div class="gift-toast" id="gift-toast" role="status" aria-live="polite"></div>
+    </section>
+
     <section class="sec sec-closing reveal" id="closing">
       <div class="closing-inner">
         <p class="closing-wish">נשמח לראותכם</p>
@@ -229,7 +259,8 @@
     <button type="button" id="nav-next" class="nav-next">להמשך ↓</button>
   </nav>
 
-  <script src="assets/js/invitation.js?v=20261124fx"></script>
-  <script src="assets/js/fx.js?v=20261124fx"></script>
+  <script src="assets/js/invitation.js?v=20261124gift"></script>
+  <script src="assets/js/fx.js?v=20261124gift"></script>
+  <script src="assets/js/gift.js?v=20261124gift"></script>
 </body>
 </html>

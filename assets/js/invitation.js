@@ -415,7 +415,7 @@
         const dy = e.clientY - ptr.y;
         ptr = null;
         if (Math.hypot(dx, dy) > 16) return;
-        if (e.target.closest("a, button, canvas, input, textarea, select, label, summary, form, .rsvp-frame, .scratch-card, .wa-contact, .waze-btn")) return;
+        if (e.target.closest("a, button, canvas, input, textarea, select, label, summary, form, .rsvp-frame, .gift-frame, .scratch-card, .wa-contact, .waze-btn")) return;
         if (e.clientY < window.innerHeight * 0.62) return;
         if (!body.classList.contains("is-open")) return;
         advanceFromNav();
